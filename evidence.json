@@ -1,0 +1,47 @@
+{
+  "run": {
+    "agent": "hermes-jobs",
+    "date": "2026-10-21",
+    "headless": true,
+    "runtime": "Node v22.22.2 / npm 10.9.7 / Linux x86_64"
+  },
+  "summary": "Headless first send with @nitrosend/cli 0.3.9: npm install, API-key login, brand subdomain activation via REST prepare_sending, then nitrosend send to proof@dogfood.nitrosend.net. Message id 5160978 queued at 2026-10-21 15:35:26 UTC; Nitrosend published the signed runx receipt at 15:35:30 UTC.",
+  "observations": [
+    {
+      "observation_type": "install",
+      "url": "https://docs.nitrosend.com/cli/install",
+      "verified_at": "2026-10-21T15:33:47Z",
+      "detail": "npm install -g @nitrosend/cli completed in ~2s and installed 0.3.9; nitrosend --version prints 0.3.9, matching the version this docs page is generated from."
+    },
+    {
+      "observation_type": "auth",
+      "url": "https://docs.nitrosend.com/cli/install",
+      "verified_at": "2026-10-21T15:34:12Z",
+      "detail": "nitrosend login --api-key <key> --no-browser stored profile 'default'; nitrosend whoami --json reports auth=api_key, source=profile, apiUrl=https://api.nitrosend.com/mcp. NITROSEND_API_KEY env auth also works (source=env)."
+    },
+    {
+      "observation_type": "defect",
+      "url": "https://api.nitrosend.com/v1/my/brands",
+      "verified_at": "2026-10-21T15:33:20Z",
+      "detail": "Authorization header value format differs between tokens: the signup response-header token works bare (200), while the API secret_key returns 401 {\"code\":401,\"message\":\"Not authenticated\"} unless prefixed with 'Bearer ' (then 200). Neither doc states the rule."
+    },
+    {
+      "observation_type": "doc_gap",
+      "url": "https://docs.nitrosend.com/cli/install",
+      "verified_at": "2026-10-21T15:36:37Z",
+      "detail": "Docs say the bare `nitrosend` dashboard renders the envelope's blockers and next_action fields, but `nitrosend status --json` emits neither key; data carries issues[] and recommendations[] instead."
+    },
+    {
+      "observation_type": "gap",
+      "url": "https://docs.nitrosend.com/cli/reference",
+      "verified_at": "2026-10-21T15:34:25Z",
+      "detail": "No CLI command wraps POST /v1/my/brands/<sid>/prepare_sending. The command reference lists no brand/prepare-sending subcommand, so headless sender activation needs raw HTTP between login and send."
+    },
+    {
+      "observation_type": "send",
+      "url": "https://runx.ai/r/dc2464fd795ae5a00f6b6cdd5ecc3afb990668480a347aaab08287730a6da7ba",
+      "verified_at": "2026-10-21T15:36:10Z",
+      "detail": "Receipt page renders publisher 'nitrosend', service 'cli.send', occurred 2026-10-21T15:35:30.103Z — matching the CLI's 'Created at 2026-10-21 15:35:26 UTC' queue time for message id 5160978."
+    }
+  ]
+}
