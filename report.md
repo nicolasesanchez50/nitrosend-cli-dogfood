@@ -1,0 +1,11 @@
+# Nitrosend CLI first-send report
+
+Run on 2026-10-21, headless (no browser at any step). Node v22.22.2, npm 10.9.7, Linux x86_64.
+
+- **Install and versions.** `npm install -g @nitrosend/cli` installed 0.3.9 in 2s; `nitrosend --version` prints `0.3.9`. Auth via `nitrosend login --api-key <key> --no-browser` stored profile `default` at endpoint `https://api.nitrosend.com/mcp`; `nitrosend whoami --json` reports `auth: api_key, source: profile`.
+- **Send.** `nitrosend send --to proof@dogfood.nitrosend.net --subject "First send with the Nitrosend CLI (0.3.9)" --body "..." --idempotency-key hermes-jobs-cli-139-20261021` returned `Id: 5160978, Status: queued, Created at 2026-10-21 15:35:26 UTC`. A `--dry-run` of the same command first returned `Valid: true`. Receipt published 15:35:30 UTC.
+- **Timing.** Signup 15:32:46 UTC, install 15:33:45, sender activated 15:34:25, first send 15:35:26 — under 3 minutes end to end; the longest wait was `prepare_sending` returning `status: ready`.
+- **Slowest step.** Sender activation. There is no CLI command for `POST /v1/my/brands/<sid>/prepare_sending {"subdomain":"..."}`; `nitrosend status` only shows the brand subdomain read-only. So the documented headless path needs hand-rolled HTTP between `login` and `send`, which is the one gap an agent hits on first run.
+- **Defect (exact repro).** The API key needs a `Bearer ` prefix while the signup token does not, and neither doc states it. `curl -H "Authorization: <signup_token>" https://api.nitrosend.com/v1/my/brands` returns 200; building the same header from the API `secret_key` returns `401 {"code":401,"message":"Not authenticated"}` until prefixed, then `Authorization: Bearer <secret_key>` returns 200. Same header, two value formats.
+- **Doc gap.** https://docs.nitrosend.com/cli/install says the bare `nitrosend` dashboard "renders the response envelope's `blockers` and `next_action` fields", but `nitrosend status --json` emits neither key — `data` carries `issues` and `recommendations` instead — so a machine consumer parsing the documented fields gets nothing.
+- **Change I would make.** Add `nitrosend brand prepare-sending --subdomain <name>` so headless onboarding stays pure CLI, and state the `Bearer` rule beside `secret_key` in the API-key instructions.
